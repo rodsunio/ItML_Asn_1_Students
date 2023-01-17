@@ -124,17 +124,30 @@ class edaDF:
         if show == True:
             figure.show()
         return figure
+    
+    def pairPlots(self):
+        sns.pairplot(self.data, hue = self.target)
+        plt.show()
+    
+    def corrCoefficient(self):
+        temp = pd.get_dummies(self.data, drop_first=True)
+        corr = temp.corr()
+        corr.style.background_gradient()
+        corr.style.background_gradient().set_precision(2)
 
     def fullEDA(self):
         out1 = widgets.Output()
         out2 = widgets.Output()
         out3 = widgets.Output()
         out4 = widgets.Output()
+        out5 = widgets.Output()
 
-        tab = widgets.Tab(children = [out1, out2, out3])
+        tab = widgets.Tab(children = [out1, out2, out3, out4, out5])
         tab.set_title(0, 'Info')
         tab.set_title(1, 'Categorical')
         tab.set_title(2, 'Numerical')
+        tab.set_title(3, 'Pair Plots')
+        tab.set_title(4, 'Correlation Coefficient')
         display(tab)
 
         with out1:
@@ -147,3 +160,11 @@ class edaDF:
         with out3:
             fig3 = self.histPlots(kde=True, show=False)
             plt.show(fig3)
+
+        with out4:
+            fig4 = self.pairPlots()
+            plt.show(fig4)
+        
+        with out5:
+            fig5 = self.corrCoefficient()
+            plt.show(fig5)
