@@ -130,10 +130,10 @@ class edaDF:
         plt.show()
     
     def corrCoefficient(self):
+        plt.figure(figsize=(14,14))
         temp = pd.get_dummies(self.data, drop_first=True)
         corr = temp.corr()
-        corr.style.background_gradient()
-        corr.style.background_gradient().set_precision(2)
+        sns.heatmap(corr, annot=True)
 
     def fullEDA(self):
         out1 = widgets.Output()
