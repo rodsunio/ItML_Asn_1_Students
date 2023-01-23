@@ -44,7 +44,22 @@ class edaDF:
         ----------
         numlist : list
             The list of column names that are numerical
+    
+    missing_values(self)
+        gets the sum of the null values
 
+    detect_outliers(self, column)
+        detects outliers using Z-score method
+
+    remove_outliers(self, column, lower_bound, upper_bound)
+        removes outliers
+
+        Paramaters
+        ----------
+        column: the name of the column on which you want to filter out the outliers
+        lower_bound:  lower bound to filter the outliers
+        upper_bound:  upper bound to filter the outliers
+    
     countPlots(self, splitTarg=False, show=True)
         generates countplots for the categorical variables in the dataset 
 
@@ -64,6 +79,14 @@ class edaDF:
             If true, use the hue function in the countplot to split the data by the target value
         show : bool
             If true, display the graphs when the function is called. Otherwise the figure is returned. 
+
+    pairPlots(self)
+        generates pairplots and a regression line with the hue function in the pairplot to split the data by the target value
+
+    corrCoefficient(self)
+        generates a heatmap of correlation
+        the pandas getdummies method is used in this method to convert categorical variables into dummy/indicator variables
+
 
     fullEDA()
         Displays the full EDA process. 
@@ -85,6 +108,23 @@ class edaDF:
     
     def setNum(self, numList):
         self.num = numList
+
+    def missing_values(self):
+        return self.data.isnull().sum()
+    
+    def detect_outliers(self, column):
+        mean = self.data[column].mean()
+        std = self.data[column].std()
+        outliers = []
+        for i in self.data[column]:
+            z_score = (i - mean) / std
+            if np.abs(z_score) > 3:
+                outliers.append(i)
+        return outliers
+
+    def remove_outliers(self, column, lower_bound, upper_bound):
+        self.data = self.data[(self.data[column] > lower_bound) & (self.data[column] < upper_bound)]
+        return self.data
 
     def countPlots(self, splitTarg=False, show=True):
         n = len(self.cat)
@@ -126,14 +166,15 @@ class edaDF:
         return figure
     
     def pairPlots(self):
-        sns.pairplot(self.data, hue = self.target)
+        sns.pairplot(self.data, hue = self.target, kind ='reg')
         plt.show()
     
     def corrCoefficient(self):
         plt.figure(figsize=(14,14))
         temp = pd.get_dummies(self.data, drop_first=True)
         corr = temp.corr()
-        sns.heatmap(corr, annot=True)
+        sns.heatmap(corr, annot=True, cmap ='coolwarm', fmt='.2f',
+            annot_kws={'size': 10}, cbar=False)
 
     def fullEDA(self):
         out1 = widgets.Output()
